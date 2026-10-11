@@ -39,13 +39,15 @@ function createViewer({ element, loading, obj, mtl, texture, targetSize = 2.72 }
   return { focus };
 }
 const viewers = {
-  male: createViewer({element:document.querySelector("#male-scene"),loading:document.querySelector("#male-loading"),obj:modelAssetUrl("numbered-lion.obj"),texture:modelAssetUrl("numbered-lion.bmp"),targetSize:1.85}),
-  female: createViewer({element:document.querySelector("#female-scene"),loading:document.querySelector("#female-loading"),obj:modelAssetUrl("female-lion.obj"),texture:"./assets/female-lion.jpg",targetSize:1.55})
+  male: createViewer({element:document.querySelector("#male-scene"),loading:document.querySelector("#male-loading"),obj:modelAssetUrl("numbered-lion.obj"),targetSize:1.85}),
+  female: createViewer({element:document.querySelector("#female-scene"),loading:document.querySelector("#female-loading"),obj:modelAssetUrl("female-lion.obj"),targetSize:1.55})
 };
 const pairViews = [
   {title:"두 개체의 등을 비교하세요", text:"두 모델의 등과 후면 윤곽을 함께 살펴보는 시점입니다. 형태 비교에 관한 사실 해설은 공식 조사 기록으로 검증해야 합니다.", male:[0,1.15,-5.2], female:[0,1.15,-5.2]},
   {title:"두 개체의 머리를 비교하세요", text:"두 모델의 머리 부위를 함께 살펴보는 시점입니다. 조각 기법이나 양식에 관한 설명은 소장처의 확정 정보를 넣어야 합니다.", male:[2.1,1.9,3.2], female:[-2.1,1.9,3.2]},
-  {title:"두 개체의 몸통을 비교하세요", text:"두 모델의 몸통과 표면 윤곽을 함께 살펴보는 시점입니다. 마모·보존 상태는 보존 기록을 출처로 명시해 주세요.", male:[-3.1,.9,3.8], female:[3.1,.9,3.8]}
+  {title:"두 개체의 몸통을 비교하세요", text:"두 모델의 몸통과 표면 윤곽을 함께 살펴보는 시점입니다. 마모·보존 상태는 보존 기록을 출처로 명시해 주세요.", male:[-3.1,.9,3.8], female:[3.1,.9,3.8]},
+  {title:"두 개체의 앞면을 비교하세요", text:"두 모델의 전면 윤곽을 함께 살펴보는 시점입니다. 세부 명칭과 양식 설명은 공식 조사 기록으로 확인해 주세요.", male:[0,1.2,5.2], female:[0,1.2,5.2]},
+  {title:"두 개체의 측면을 비교하세요", text:"두 모델의 옆면 실루엣을 함께 살펴보는 시점입니다. 형태와 제작 기법에 관한 해설은 검증된 출처를 함께 제시해 주세요.", male:[5.1,1.1,.2], female:[-5.1,1.1,.2]}
 ];
 const detail = document.querySelector(".detail-card");
 document.querySelectorAll(".hotspot").forEach(button => button.addEventListener("click", () => {
