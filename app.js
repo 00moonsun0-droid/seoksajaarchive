@@ -3,8 +3,16 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
 
-const modelAssetBaseUrl = window.MODEL_ASSET_BASE_URL.replace(/\/+$/, "");
-const modelAssetUrl = (filename) => `${modelAssetBaseUrl}/${encodeURIComponent(filename)}`;
+const releaseAssetUrl = async (filename) => {
+  const response = await fetch("https://api.github.com/repos/00moonsun0-droid/seoksajaarchive/releases/tags/models-v1", {
+    headers: { Accept: "application/vnd.github+json" }
+  });
+  if (!response.ok) throw new Error(`Release metadata unavailable (${response.status})`);
+  const release = await response.json();
+  const asset = release.assets.find((item) => item.name === filename);
+  if (!asset) throw new Error(`Release asset not found: ${filename}`);
+  return asset.url;
+};
 
 function createViewer({ element, loading, obj, mtl, texture, targetSize = 2.72 }) {
   const scene = new THREE.Scene();
@@ -26,10 +34,9 @@ function createViewer({ element, loading, obj, mtl, texture, targetSize = 2.72 }
   (async () => {
     let materials;
     if(mtl){ materials=await new MTLLoader().loadAsync(mtl); materials.preload(); }
-    const loader=new OBJLoader(); if(materials) loader.setMaterials(materials);
-    const model=await loader.loadAsync(obj);
+    const loader=new OBJLoader(); loader.setRequestHeader({Accept:"application/octet-stream"}); if(materials) loader.setMaterials(materials);
+    const model=await loader.loadAsync(await obj);
     if(texture){ const map=await new THREE.TextureLoader().loadAsync(texture); map.colorSpace=THREE.SRGBColorSpace; model.traverse(n=>{if(n.isMesh)n.material=new THREE.MeshStandardMaterial({map,roughness:.57,metalness:0});}); }
-    // ZBrush OBJ의 세로 축(Z)을 Three.js의 세로 축(Y)에 맞춘다. 바닥면이 아래를 향하도록 두 개체에 공통 적용한다.
     model.rotation.x = -Math.PI / 2;
     const box=new THREE.Box3().setFromObject(model), size=box.getSize(new THREE.Vector3()), center=box.getCenter(new THREE.Vector3()), scale=targetSize/Math.max(size.x,size.y,size.z);
     model.scale.setScalar(scale); model.position.sub(center.multiplyScalar(scale)); model.traverse(n=>{if(n.isMesh){n.castShadow=true;n.material.side=THREE.DoubleSide;}}); root.add(model); loading.style.opacity=0;
@@ -39,8 +46,8 @@ function createViewer({ element, loading, obj, mtl, texture, targetSize = 2.72 }
   return { focus };
 }
 const viewers = {
-  male: createViewer({element:document.querySelector("#male-scene"),loading:document.querySelector("#male-loading"),obj:modelAssetUrl("numbered-lion.obj"),targetSize:1.85}),
-  female: createViewer({element:document.querySelector("#female-scene"),loading:document.querySelector("#female-loading"),obj:modelAssetUrl("female-lion.obj"),targetSize:1.55})
+  male: createViewer({element:document.querySelector("#male-scene"),loading:document.querySelector("#male-loading"),obj:releaseAssetUrl("numbered-lion.obj"),targetSize:1.85}),
+  female: createViewer({element:document.querySelector("#female-scene"),loading:document.querySelector("#female-loading"),obj:releaseAssetUrl("female-lion.obj"),targetSize:1.55})
 };
 const pairViews = [
   {title:"두 개체의 등을 비교하세요", text:"두 모델의 등과 후면 윤곽을 함께 살펴보는 시점입니다. 형태 비교에 관한 사실 해설은 공식 조사 기록으로 검증해야 합니다.", male:[0,1.15,-5.2], female:[0,1.15,-5.2]},
